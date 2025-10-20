@@ -1,12 +1,27 @@
-/*******************************************************************************
- * Copyright (c) 2021 Eclipse RDF4J contributors.
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Distribution License v1.0
- * which accompanies this distribution, and is available at
- * http://www.eclipse.org/org/documents/edl-v10.php.
- *******************************************************************************/
+/**
+ * The MIT License
+ * Copyright © 2016-2024 FAIR Data Team
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ * THE SOFTWARE.
+ */
 // Adapted from: https://github.com/eclipse/rdf4j/tree/main/spring-components/spring-boot-sparql-web
-package nl.dtls.fairdatapoint.api;
+package org.fairdatapoint.api.controller.sparql;
 
 import static org.springframework.http.HttpHeaders.ACCEPT;
 import static org.springframework.http.MediaType.APPLICATION_FORM_URLENCODED_VALUE;
@@ -15,9 +30,9 @@ import java.io.IOException;
 import java.util.Optional;
 import java.util.function.Predicate;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+import lombok.RequiredArgsConstructor;
 import org.eclipse.rdf4j.common.annotation.Experimental;
 import org.eclipse.rdf4j.common.lang.FileFormat;
 import org.eclipse.rdf4j.model.IRI;
@@ -51,17 +66,11 @@ import org.springframework.web.bind.annotation.RestController;
 
 @Experimental
 @RestController
+@RequiredArgsConstructor
 public class QueryResponder {
-    /**
-     * The repository that is being served.
-     */
-    @Autowired
-    private final Repository repository;
 
     @Autowired
-    public QueryResponder(Repository repository) {
-        this.repository = repository;
-    }
+    private final Repository mainRepository;
 
     @RequestMapping(value = "/sparql", method = RequestMethod.POST, consumes = APPLICATION_FORM_URLENCODED_VALUE)
     public void sparqlPostURLencoded(
@@ -83,87 +92,88 @@ public class QueryResponder {
     private void doSparql(HttpServletRequest request, String query, String acceptHeader, String defaultGraphUri,
                           String namedGraphUri, HttpServletResponse response) throws IOException {
 
-        try (RepositoryConnection connection = repository.getConnection()) {
-            Query preparedQuery = connection.prepareQuery(QueryLanguage.SPARQL, query);
+        try (RepositoryConnection connection = mainRepository.getConnection()) {
+            final Query preparedQuery = connection.prepareQuery(QueryLanguage.SPARQL, query);
             setQueryDataSet(preparedQuery, defaultGraphUri, namedGraphUri, connection);
-            for (QueryTypes qt : QueryTypes.values()) {
-                if (qt.accepts(preparedQuery, acceptHeader)) {
-                    qt.evaluate(preparedQuery, acceptHeader, response, defaultGraphUri, namedGraphUri);
+            for (QueryTypes qts : QueryTypes.values()) {
+                if (qts.accepts(preparedQuery, acceptHeader)) {
+                    qts.evaluate(preparedQuery, acceptHeader, response, defaultGraphUri, namedGraphUri);
                 }
             }
-        } catch (MalformedQueryException | MismatchingAcceptHeaderException mqe) {
+        }
+        catch (MalformedQueryException | MismatchingAcceptHeaderException mqe) {
             response.sendError(HttpServletResponse.SC_BAD_REQUEST);
-        } catch (IllegalArgumentException e) {
+        }
+        catch (IllegalArgumentException exc) {
             response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Bad IRI for default or namedGraphIri");
         }
     }
 
     /**
      * @see <a href="https://www.w3.org/TR/sparql11-protocol/#dataset">protocol dataset</a>
-     * @param q               the query
+     * @param query             the query
      * @param defaultGraphUri
      * @param namedGraphUri
      * @param connection
      */
-    private void setQueryDataSet(Query q, String defaultGraphUri, String namedGraphUri,
+    private void setQueryDataSet(Query query, String defaultGraphUri, String namedGraphUri,
                                  RepositoryConnection connection) {
         if (defaultGraphUri != null || namedGraphUri != null) {
-            SimpleDataset dataset = new SimpleDataset();
+            final SimpleDataset dataset = new SimpleDataset();
 
             if (defaultGraphUri != null) {
-                IRI defaultIri = connection.getValueFactory().createIRI(defaultGraphUri);
+                final IRI defaultIri = connection.getValueFactory().createIRI(defaultGraphUri);
                 dataset.addDefaultGraph(defaultIri);
             }
 
             if (namedGraphUri != null) {
-                IRI namedIri = connection.getValueFactory().createIRI(namedGraphUri);
+                final IRI namedIri = connection.getValueFactory().createIRI(namedGraphUri);
                 dataset.addNamedGraph(namedIri);
             }
-            q.setDataset(dataset);
+            query.setDataset(dataset);
         }
     }
 
     private enum QueryTypes {
-        CONSTRUCT_OR_DESCRIBE(q -> q instanceof GraphQuery, RDFFormat.TURTLE, RDFFormat.NTRIPLES, RDFFormat.JSONLD,
-                RDFFormat.RDFXML) {
+        CONSTRUCT_OR_DESCRIBE(query -> query instanceof GraphQuery, RDFFormat.TURTLE, RDFFormat.NTRIPLES,
+                RDFFormat.JSONLD, RDFFormat.RDFXML) {
             @Override
             protected void evaluate(Query q, String acceptHeader, HttpServletResponse response, String defaultGraphUri,
                                     String namedGraphUri)
                     throws QueryEvaluationException, RDFHandlerException, UnsupportedRDFormatException, IOException {
-                GraphQuery gq = (GraphQuery) q;
-                RDFFormat format = (RDFFormat) bestFormat(acceptHeader);
+                final GraphQuery gq = (GraphQuery) q;
+                final RDFFormat format = (RDFFormat) bestFormat(acceptHeader);
                 response.setContentType(format.getDefaultMIMEType());
                 gq.evaluate(Rio.createWriter(format, response.getOutputStream()));
             }
         },
-        SELECT(q -> q instanceof TupleQuery, TupleQueryResultFormat.JSON, TupleQueryResultFormat.SPARQL,
+        SELECT(query -> query instanceof TupleQuery, TupleQueryResultFormat.JSON, TupleQueryResultFormat.SPARQL,
                 TupleQueryResultFormat.CSV, TupleQueryResultFormat.TSV) {
             @Override
             protected void evaluate(Query q, String acceptHeader, HttpServletResponse response, String defaultGraphUri,
                                     String namedGraphUri)
                     throws QueryEvaluationException, RDFHandlerException, UnsupportedRDFormatException, IOException {
-                TupleQuery tq = (TupleQuery) q;
-                QueryResultFormat format = (QueryResultFormat) bestFormat(acceptHeader);
+                final TupleQuery tq = (TupleQuery) q;
+                final QueryResultFormat format = (QueryResultFormat) bestFormat(acceptHeader);
                 response.setContentType(format.getDefaultMIMEType());
                 tq.evaluate(QueryResultIO.createTupleWriter(format, response.getOutputStream()));
             }
         },
 
-        ASK(q -> q instanceof BooleanQuery, BooleanQueryResultFormat.TEXT, BooleanQueryResultFormat.JSON,
+        ASK(query -> query instanceof BooleanQuery, BooleanQueryResultFormat.TEXT, BooleanQueryResultFormat.JSON,
                 BooleanQueryResultFormat.SPARQL) {
             @Override
             protected void evaluate(Query q, String acceptHeader, HttpServletResponse response, String defaultGraphUri,
                                     String namedGraphUri)
                     throws QueryEvaluationException, RDFHandlerException, UnsupportedRDFormatException, IOException {
-                BooleanQuery bq = (BooleanQuery) q;
-                QueryResultFormat format = (QueryResultFormat) bestFormat(acceptHeader);
+                final BooleanQuery bq = (BooleanQuery) q;
+                final QueryResultFormat format = (QueryResultFormat) bestFormat(acceptHeader);
                 response.setContentType(format.getDefaultMIMEType());
                 final Optional<BooleanQueryResultWriterFactory> optional = BooleanQueryResultWriterRegistry
                         .getInstance()
                         .get(format);
                 if (optional.isPresent()) {
-
-                    BooleanQueryResultWriter writer = optional.get().getWriter(response.getOutputStream());
+                    final BooleanQueryResultWriter writer = optional.get().getWriter(response.getOutputStream());
                     writer.handleBoolean(bq.evaluate());
                 }
 
@@ -191,11 +201,13 @@ public class QueryResponder {
             if (accepts(preparedQuery)) {
                 if (acceptHeader == null || acceptHeader.isEmpty()) {
                     return true;
-                } else {
+                }
+                else {
                     for (FileFormat format : formats) {
                         for (String mimeType : format.getMIMETypes()) {
-                            if (acceptHeader.contains(mimeType))
+                            if (acceptHeader.contains(mimeType)) {
                                 return true;
+                            }
                         }
                     }
                 }
@@ -204,22 +216,24 @@ public class QueryResponder {
             return false;
         }
 
-        protected abstract void evaluate(Query q, String acceptHeader, HttpServletResponse response,
+        protected boolean accepts(Query query) {
+            return typeChecker.test(query);
+        }
+
+        protected abstract void evaluate(Query query, String acceptHeader, HttpServletResponse response,
                                          String defaultGraphUri, String namedGraphUri)
                 throws QueryEvaluationException, RDFHandlerException, UnsupportedRDFormatException, IOException;
-
-        protected boolean accepts(Query q) {
-            return typeChecker.test(q);
-        };
 
         protected FileFormat bestFormat(String acceptHeader) {
             if (acceptHeader == null || acceptHeader.isEmpty()) {
                 return formats[0];
-            } else {
+            }
+            else {
                 for (FileFormat format : formats) {
                     for (String mimeType : format.getMIMETypes()) {
-                        if (acceptHeader.contains(mimeType))
+                        if (acceptHeader.contains(mimeType)) {
                             return format;
+                        }
                     }
                 }
             }
@@ -227,7 +241,7 @@ public class QueryResponder {
         }
     }
 
-    private static class MismatchingAcceptHeaderException extends Exception {
+    private static final class MismatchingAcceptHeaderException extends Exception {
         private static final long serialVersionUID = 1L;
 
     }
