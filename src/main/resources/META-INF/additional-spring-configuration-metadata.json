@@ -1,0 +1,74 @@
+{
+  "properties": [
+    {
+      "name": "instance.clientUrl",
+      "type": "java.lang.String",
+      "description": "Client URL."
+    },
+    {
+      "name": "instance.persistentUrl",
+      "type": "java.lang.String",
+      "description": "Persistent URL."
+    },
+    {
+      "name": "instance.index",
+      "type": "java.lang.Boolean",
+      "description": "Turn on if you want to run FAIR Data Point as FAIR Data Point Index"
+    },
+    {
+      "name": "instance.indexAutoPermit",
+      "type": "java.lang.Boolean",
+      "description": "Turn on if you want automatically permit new entries that ping the Index"
+    },
+    {
+      "name": "security.jwt.token.secret-key",
+      "type": "java.lang.String",
+      "description": "Secret string used for JWT signing and validation (we recommend to generate some randomly)."
+    },
+    {
+      "name": "security.jwt.token.expiration",
+      "type": "java.lang.Long",
+      "description": "Number of days until a token expires."
+    },
+    {
+      "name": "ping.enabled",
+      "type": "java.lang.String",
+      "description": "States if 'Call home' feature should be enabled"
+    },
+    {
+      "name": "openapi.url",
+      "type": "java.lang.String",
+      "description": "Server URL where API is running"
+    },
+    {
+      "name": "openapi.title",
+      "type": "java.lang.String",
+      "description": "Title for OpenAPI docs"
+    },
+    {
+      "name": "openapi.description",
+      "type": "java.lang.String",
+      "description": "Description for OpenAPI docs"
+    },
+    {
+      "name": "openapi.contact.url",
+      "type": "java.lang.String",
+      "description": "Contact URL for OpenAPI docs"
+    },
+    {
+      "name": "openapi.contact.email",
+      "type": "java.lang.String",
+      "description": "Contact email for OpenAPI docs"
+    },
+    {
+      "name": "openapi.contact.name",
+      "type": "java.lang.String",
+      "description": "Contact name/label for OpenAPI docs"
+    },
+    {
+      "name": "instance.behindProxy",
+      "type": "java.lang.String",
+      "description": "If FDP is running behind reverse HTTP proxy"
+    }
+  ]
+}

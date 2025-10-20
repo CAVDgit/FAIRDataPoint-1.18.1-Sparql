@@ -1,0 +1,5 @@
+instance:
+  clientUrl: http://localhost
+
+server:
+  port: 80

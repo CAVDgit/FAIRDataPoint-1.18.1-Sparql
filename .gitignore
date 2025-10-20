@@ -1,0 +1,6 @@
+# Java
+target/
+
+# Netbeans
+nb-configuration\.xml
+/nbproject/
