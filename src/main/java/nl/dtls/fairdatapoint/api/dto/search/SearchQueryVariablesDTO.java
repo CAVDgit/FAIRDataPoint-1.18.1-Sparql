@@ -36,9 +36,6 @@ public class SearchQueryVariablesDTO {
     private String prefixes;
 
     @NotNull
-    private String selection;
-
-    @NotNull
     private String graphPattern;
 
     @NotNull
