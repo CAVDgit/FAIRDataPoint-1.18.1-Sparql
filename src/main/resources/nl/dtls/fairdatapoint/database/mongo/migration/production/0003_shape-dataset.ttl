@@ -15,7 +15,6 @@
     [
       sh:path dcat:landingPage ;
       sh:nodeKind sh:IRI ;
-      sh:maxCount 1 ;
     ],
     [
       sh:path dcat:theme ;
@@ -32,5 +31,4 @@
     [
       sh:path dcat:contactPoint ;
        sh:nodeKind sh:IRI ;
-       sh:maxCount 1 ;
     ] .

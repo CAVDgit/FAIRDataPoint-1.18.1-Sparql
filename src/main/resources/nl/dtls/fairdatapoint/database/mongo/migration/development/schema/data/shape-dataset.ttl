@@ -24,14 +24,12 @@
   ],  [
     sh:path dcat:theme ;
     sh:nodeKind sh:IRI ;
-    sh:minCount 1 ;
     dash:editor dash:URIEditor ;
     dash:viewer dash:LabelViewer ;
     sh:order 22 ;
   ], [
     sh:path dcat:contactPoint ;
     sh:nodeKind sh:IRI ;
-    sh:maxCount 1 ;
     dash:editor dash:URIEditor ;
     dash:viewer dash:LabelViewer ;
     sh:order 23 ;
@@ -44,7 +42,6 @@
   ], [
     sh:path dcat:landingPage ;
     sh:nodeKind sh:IRI ;
-    sh:maxCount 1 ;
     dash:editor dash:URIEditor ;
     dash:viewer dash:LabelViewer ;
     sh:order 25 ;

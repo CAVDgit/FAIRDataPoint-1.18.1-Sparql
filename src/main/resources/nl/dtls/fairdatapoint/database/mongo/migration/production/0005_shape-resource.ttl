@@ -12,43 +12,34 @@
     sh:path dct:title ;
     sh:nodeKind sh:Literal ;
     sh:minCount 1 ;
-    sh:maxCount  1 ;
     dash:editor dash:TextFieldEditor ;
   ], [
     sh:path dct:description ;
     sh:nodeKind sh:Literal ;
-    sh:maxCount 1 ;
     dash:editor dash:TextAreaEditor ;
   ], [
     sh:path dct:publisher ;
     sh:node :AgentShape ;
-    sh:minCount 1 ;
-    sh:maxCount 1 ;
     dash:editor dash:BlankNodeEditor ;
   ], [
     sh:path dct:hasVersion ;
     sh:name "version" ;
     sh:nodeKind sh:Literal ;
-    sh:minCount 1 ;
-    sh:maxCount 1 ;
     dash:editor dash:TextFieldEditor ;
     dash:viewer dash:LiteralViewer ;
   ], [
     sh:path dct:language ;
     sh:nodeKind sh:IRI ;
-    sh:maxCount 1 ;
     dash:editor dash:URIEditor ;
     dash:viewer dash:LabelViewer ;
   ], [
     sh:path dct:license ;
     sh:nodeKind sh:IRI ;
-    sh:maxCount 1 ;
     dash:editor dash:URIEditor ;
     dash:viewer dash:LabelViewer ;
   ], [
     sh:path dct:rights ;
     sh:nodeKind sh:IRI ;
-    sh:maxCount 1 ;
     dash:editor dash:URIEditor ;
     dash:viewer dash:LabelViewer ;
   ] .
@@ -58,7 +49,5 @@
   sh:property [
     sh:path foaf:name;
     sh:nodeKind sh:Literal ;
-    sh:minCount 1 ;
-    sh:maxCount  1 ;
     dash:editor dash:TextFieldEditor ;
   ] .

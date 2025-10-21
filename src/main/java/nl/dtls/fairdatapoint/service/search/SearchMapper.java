@@ -98,6 +98,7 @@ public class SearchMapper {
     public Map<String, String> toSubstitutions(SearchQueryVariablesDTO reqDto) {
         return Map.of(
                 "prefixes", reqDto.getPrefixes() + FRAGMENT_SUFFIX,
+                "selection", reqDto.getSelection() + FRAGMENT_SUFFIX,
                 "graphPattern", reqDto.getGraphPattern() + FRAGMENT_SUFFIX,
                 "ordering", reqDto.getOrdering() + FRAGMENT_SUFFIX
         );

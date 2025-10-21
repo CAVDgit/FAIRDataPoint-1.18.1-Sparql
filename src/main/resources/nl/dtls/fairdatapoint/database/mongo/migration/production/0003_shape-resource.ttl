@@ -11,43 +11,35 @@
     sh:path dct:title ;
     sh:nodeKind sh:Literal ;
     sh:minCount 1 ;
-    sh:maxCount  1 ;
     dash:editor dash:TextFieldEditor ;
   ], [
     sh:path dct:description ;
     sh:nodeKind sh:Literal ;
-    sh:maxCount 1 ;
     dash:editor dash:TextAreaEditor ;
   ], [
     sh:path dct:hasVersion ;
     sh:name "version" ;
     sh:nodeKind sh:Literal ;
-    sh:minCount 1 ;
-    sh:maxCount 1 ;
     dash:editor dash:TextFieldEditor ;
     dash:viewer dash:LiteralViewer ;
   ], [
     sh:path dct:license ;
     sh:nodeKind sh:IRI ;
-    sh:maxCount 1 ;
     dash:editor dash:URIEditor ;
     dash:viewer dash:LabelViewer ;
   ], [
     sh:path dct:conformsTo ;
     sh:name "specification" ;
-    sh:maxCount 1 ;
     sh:nodeKind sh:IRI ;
     dash:viewer dash:LabelViewer ;
   ], [
     sh:path dct:language ;
     sh:nodeKind sh:IRI ;
-    sh:maxCount 1 ;
     dash:editor dash:URIEditor ;
     dash:viewer dash:LabelViewer ;
   ], [
     sh:path dct:rights ;
     sh:nodeKind sh:IRI ;
-    sh:maxCount 1 ;
   ], [
     sh:path dct:issued ;
     sh:datatype xsd:dateTime ;

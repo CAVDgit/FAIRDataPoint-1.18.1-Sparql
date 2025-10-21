@@ -23,7 +23,6 @@
   ], [
     sh:path foaf:homePage ;
     sh:nodeKind sh:IRI ;
-    sh:maxCount 1 ;
     dash:editor dash:URIEditor ;
     dash:viewer dash:LabelViewer ;
     sh:order 22 ;
