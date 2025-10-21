@@ -25,7 +25,6 @@
     sh:path fdp:uiLanguage ;
     sh:nodeKind sh:IRI ;
     sh:maxCount 1 ;
-    sh:defaultValue <http://id.loc.gov/vocabulary/iso639-1/en>;
     dash:editor dash:URIEditor ;
     dash:viewer dash:LabelViewer ;
     sh:order 42 ;

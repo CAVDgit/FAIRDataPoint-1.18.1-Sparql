@@ -12,4 +12,4 @@ WHERE {
     {{graphPattern}}
 }
 ORDER BY {{ordering}}
-LIMIT 50
+LIMIT 10000
