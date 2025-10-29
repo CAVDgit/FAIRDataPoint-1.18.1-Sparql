@@ -1,0 +1,74 @@
+services:
+  fdp:
+    container_name: fdp
+    image: fairdata/fairdatapoint:1.18.1
+    restart: unless-stopped
+    environment:
+      SERVER_PORT: 8080
+      INSTANCE_CLIENTURL: ${INSTANCE_CLIENTURL}
+      INSTANCE_PERSISTENTURL: ${INSTANCE_PERSISTENTURL}
+      REPOSITORY_TYPE: 4
+      REPOSITORY_GRAPHDB_URL: ${REPOSITORY_GRAPHDB_URL}
+      REPOSITORY_GRAPHDB_REPOSITORY: ${REPOSITORY_GRAPHDB_REPOSITORY}
+      # REPOSITORY_GRAPHDB_USERNAME: ${REPOSITORY_GRAPHDB_USERNAME}
+      # REPOSITORY_GRAPHDB_PASSWORD: ${REPOSITORY_GRAPHDB_PASSWORD}
+    depends_on:
+      - graphdb
+      - mongo
+    networks:
+      - backend
+    expose:
+      - "8080"
+
+  fdp-client:
+    container_name: fdp-client
+    image: fairdata/fairdatapoint-client:1.18.0
+    ports:
+      - "80:80"         # only public entrypoint
+    environment:
+      FDP_HOST: fdp:8080
+    restart: unless-stopped
+    networks:
+      - web
+      - backend
+
+  mongo:
+    container_name: mongo
+    image: mongo:8.0
+    # no public ports
+    # ports:
+    #     - 27017:27017
+    volumes:
+      - ./mongo/data:/data/db
+    restart: unless-stopped
+    networks:
+      - backend
+    expose:
+      - "27017"
+
+  graphdb:
+    container_name: graphdb
+    image: ontotext/graphdb:10.8.8
+    restart: unless-stopped
+    environment:
+      GDB_JAVA_OPTS: >-
+        -Xmx4g -Xms4g
+        -Dgraphdb.home=/opt/graphdb/home
+        -Dgraphdb.workbench.importDirectory=/opt/graphdb/home/graphdb-import
+        -Dgraphdb.workbench.cors.enable=true
+    # no public ports
+    # ports:
+    #   - 7200:7200
+    #   - 7300:7300
+    volumes:
+      - ./graphdb-data:/opt/graphdb/home
+    networks:
+      - backend
+    expose:
+      - "7200"
+      - "7300"
+
+networks:
+  web: {}
+  backend:
+    internal: true        # isolates services from the host & internet
